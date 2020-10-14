@@ -1,0 +1,30 @@
+name: Python Install + Tests using Conda
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 5
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 2.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 2.7
+    - name: Install test dependencies
+      run: |
+        $CONDA/bin/conda install -c conda-forge -c bioconda 'python<3' biopython svmlight==6.02 'tensorflow<2.0.0,>=1.1.0'
+    - name: Install FRED
+      run: |
+        $CONDA/bin/pip install keras==2.3.1 .
+    - name: Run Tests
+      run: |
+        conda install pytest
+        $CONDA/bin/nosetests --exclude-dir=Fred2/test/external Fred2
